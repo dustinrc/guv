@@ -1,24 +1,54 @@
 package guv
 
-import "time"
+import (
+	"fmt"
+	"log"
+	"time"
+)
 
-type ManagerCheckFunc func() int
-
-type Manager struct {
-	pool  *Pool
-	check ManagerCheckFunc
-	freq  time.Duration
+type Manageable interface {
+	Size() (size int)
+	Resize(newSize int) (previous int, err error)
 }
 
-func NewManager(check ManagerCheckFunc, frequency time.Duration) (*Manager, error) {
-	pool, err := NewPool(0)
-	if err != nil {
-		return nil, err
-	}
+type ManagerCheck func() (newSize int)
+
+type Manager struct {
+	Name     string
+	resource Manageable
+	check    ManagerCheck
+	freq     time.Duration
+	running  bool
+}
+
+func NewManager(resource Manageable, check ManagerCheck, freq time.Duration) *Manager {
 	m := &Manager{
-		pool:  pool,
-		check: check,
-		freq:  frequency,
+		Name:     fmt.Sprintf("Manager %v", resource),
+		resource: resource,
+		check:    check,
+		freq:     freq,
 	}
-	return m, nil
+	return m
+}
+
+func (m *Manager) Start() {
+	m.running = true
+	for m.running {
+		select {
+		case <-time.After(m.freq):
+			size := m.resource.Size()
+			newSize := m.check()
+			if newSize != size {
+				log.Printf("%s: will resize from %d to %d", m.Name, size, newSize)
+				_, err := m.resource.Resize(m.check())
+				if err != nil {
+					log.Printf("Manager Error: could not resize: %v", err)
+				}
+			}
+		}
+	}
+}
+
+func (m *Manager) Stop() {
+	m.running = false
 }
