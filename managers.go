@@ -2,7 +2,6 @@ package guv
 
 import (
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -31,22 +30,29 @@ func NewManager(resource Manageable, check ManagerCheck, freq time.Duration) *Ma
 	return m
 }
 
-func (m *Manager) Start() {
-	m.running = true
+func (m *Manager) manage(messages chan string, errors chan error) {
 	for m.running {
 		select {
 		case <-time.After(m.freq):
 			size := m.resource.Size()
 			newSize := m.check()
 			if newSize != size {
-				log.Printf("%s: will resize from %d to %d", m.Name, size, newSize)
+				messages <- fmt.Sprintf("%s: will resize from %d to %d", m.Name, size, newSize)
 				_, err := m.resource.Resize(m.check())
 				if err != nil {
-					log.Printf("Manager Error: could not resize: %v", err)
+					errors <- fmt.Errorf("%s: could not resize: %v", m.Name, err)
 				}
 			}
 		}
 	}
+}
+
+func (m *Manager) Start(msgChanSize int, errChanSize int) (chan string, chan error) {
+	m.running = true
+	messages := make(chan string, msgChanSize)
+	errors := make(chan error, errChanSize)
+	go m.manage(messages, errors)
+	return messages, errors
 }
 
 func (m *Manager) Stop() {
