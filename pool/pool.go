@@ -1,4 +1,4 @@
-package guv
+package pool
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ type Pool struct {
 }
 
 // NewPool returns a goroutine pool of the target size provided.
-func NewPool(size int) (pool *Pool, err error) {
+func New(size int) (pool *Pool, err error) {
 	p := &Pool{
 		jobs: make(chan Runner),
 		exit: make(chan struct{}),

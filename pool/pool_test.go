@@ -1,11 +1,11 @@
-package guv_test
+package pool_test
 
 import (
 	"runtime"
 	"testing"
 	"time"
 
-	"github.com/dustinrc/guv"
+	"github.com/dustinrc/guv/pool"
 )
 
 type fakeJob struct{}
@@ -44,7 +44,7 @@ var badSizes = []int{
 }
 
 func TestPoolGoodResize(t *testing.T) {
-	p, _ := guv.NewPool(0)
+	p, _ := pool.New(0)
 	size := p.Size()
 	if size != runtime.NumCPU() {
 		t.Errorf("Incorrect pool size: expected %d, actual %d.", 1, size)
@@ -70,7 +70,7 @@ func TestPoolGoodResize(t *testing.T) {
 }
 
 func TestPoolBadResize(t *testing.T) {
-	p, _ := guv.NewPool(0)
+	p, _ := pool.New(0)
 
 	for _, badSize := range badSizes {
 		prev, err := p.Resize(badSize)
@@ -85,7 +85,7 @@ func TestPoolBadResize(t *testing.T) {
 }
 
 func TestGoodNewPool(t *testing.T) {
-	p, err := guv.NewPool(1)
+	p, err := pool.New(1)
 	size := p.Size()
 	if size != 1 {
 		t.Errorf("Incorrect initial pool size: expected 1, actual %s", size)
@@ -96,7 +96,7 @@ func TestGoodNewPool(t *testing.T) {
 }
 
 func TestBadNewPool(t *testing.T) {
-	p, err := guv.NewPool(-1)
+	p, err := pool.New(-1)
 	size := p.Size()
 	if size != 0 {
 		t.Error("Incorrect initial pool size for bad input: expect 0, actual %d", size)

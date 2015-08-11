@@ -1,4 +1,4 @@
-package guv
+package manager
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ type Manager struct {
 	running  bool
 }
 
-func NewManager(resource Manageable, check ManagerCheck, freq time.Duration) *Manager {
+func New(resource Manageable, check ManagerCheck, freq time.Duration) *Manager {
 	m := &Manager{
 		Name:     fmt.Sprintf("Manager %v", resource),
 		resource: resource,

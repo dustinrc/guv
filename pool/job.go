@@ -1,4 +1,4 @@
-package guv
+package pool
 
 type Runner interface {
 	Run()
