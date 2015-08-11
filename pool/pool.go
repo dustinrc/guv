@@ -21,7 +21,7 @@ func New(size int) (pool *Pool, err error) {
 		jobs: make(chan Runner),
 		exit: make(chan struct{}),
 	}
-	_, err = p.Resize(size)
+	err = p.Resize(size)
 	return p, err
 }
 
@@ -32,14 +32,12 @@ func New(size int) (pool *Pool, err error) {
 //
 // If the target size is zero, then the pool size is set to
 // runtime.NumCPU().
-func (p *Pool) Resize(size int) (previous int, err error) {
+func (p *Pool) Resize(size int) (err error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	previous = p.size
-
 	if size < 0 {
-		return previous, fmt.Errorf("bad pool size: %v", size)
+		return fmt.Errorf("bad pool size: %v", size)
 	}
 
 	if size == 0 {

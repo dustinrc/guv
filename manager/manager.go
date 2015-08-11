@@ -7,7 +7,7 @@ import (
 
 type Manageable interface {
 	Size() (size int)
-	Resize(newSize int) (previous int, err error)
+	Resize(newSize int) (err error)
 }
 
 type ManagerCheck func() (newSize int)
@@ -38,8 +38,7 @@ func (m *Manager) manage(messages chan string, errors chan error) {
 			newSize := m.check()
 			if newSize != size {
 				messages <- fmt.Sprintf("%s: will resize from %d to %d", m.Name, size, newSize)
-				_, err := m.resource.Resize(m.check())
-				if err != nil {
+				if err := m.resource.Resize(m.check()); err != nil {
 					errors <- fmt.Errorf("%s: could not resize: %v", m.Name, err)
 				}
 			}

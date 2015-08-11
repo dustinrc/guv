@@ -49,13 +49,9 @@ func TestPoolGoodResize(t *testing.T) {
 	if size != runtime.NumCPU() {
 		t.Errorf("Incorrect pool size: expected %d, actual %d.", 1, size)
 	}
-	knownPrev := size
 
 	for _, tt := range goodSizes {
-		prev, err := p.Resize(tt.in)
-		if prev != knownPrev {
-			t.Errorf("Incorrect previous pool size: expected %d, actual %d.", knownPrev, prev)
-		}
+		err := p.Resize(tt.in)
 		if err != nil {
 			t.Errorf("Unexpected error during pool resize: %v", err)
 		}
@@ -63,7 +59,6 @@ func TestPoolGoodResize(t *testing.T) {
 		if size != tt.out {
 			t.Errorf("Incorrect pool size: expected %d, actual %d.", tt.out, size)
 		}
-		knownPrev = size
 	}
 
 	p.Wait()
@@ -73,11 +68,7 @@ func TestPoolBadResize(t *testing.T) {
 	p, _ := pool.New(0)
 
 	for _, badSize := range badSizes {
-		prev, err := p.Resize(badSize)
-		size := p.Size()
-		if prev != size {
-			t.Errorf("Pool size changed on bad resize: was %d, now %d", prev, size)
-		}
+		err := p.Resize(badSize)
 		if err == nil {
 			t.Errorf("Expected error for bad pool size of %d", badSize)
 		}
