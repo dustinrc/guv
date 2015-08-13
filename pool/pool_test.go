@@ -1,7 +1,6 @@
 package pool_test
 
 import (
-	"runtime"
 	"testing"
 	"time"
 
@@ -32,21 +31,21 @@ var goodSizes = []struct {
 	{1, 1},
 	{50, 50},
 	{1024, 1024},
-	{0, runtime.NumCPU()},
 	{32, 32},
 	{1, 1},
 }
 
 var badSizes = []int{
+	0,
 	-1,
 	-50,
 	-1024,
 }
 
 func TestPoolGoodResize(t *testing.T) {
-	p, _ := pool.New(0)
+	p, _ := pool.New(1)
 	size := p.Size()
-	if size != runtime.NumCPU() {
+	if size != 1 {
 		t.Errorf("Incorrect pool size: expected %d, actual %d.", 1, size)
 	}
 
@@ -65,7 +64,7 @@ func TestPoolGoodResize(t *testing.T) {
 }
 
 func TestPoolBadResize(t *testing.T) {
-	p, _ := pool.New(0)
+	p, _ := pool.New(1)
 
 	for _, badSize := range badSizes {
 		err := p.Resize(badSize)

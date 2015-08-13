@@ -2,7 +2,6 @@ package pool
 
 import (
 	"fmt"
-	"runtime"
 	"sync"
 )
 
@@ -15,7 +14,8 @@ type Pool struct {
 	size int
 }
 
-// NewPool returns a goroutine pool of the target size provided.
+// NewPool returns a goroutine pool of the target size provided. Size
+// must be positive.
 func New(size int) (pool *Pool, err error) {
 	p := &Pool{
 		jobs: make(chan Runner),
@@ -28,21 +28,15 @@ func New(size int) (pool *Pool, err error) {
 // Resize adjusts the pool size to the target provided. Adjusting up
 // happens immediately, as newly started goroutines will be free to
 // take from the queued jobs. Adjusting down will occur as running
-// goroutines complete the current jobs.
-//
-// If the target size is zero, then the pool size is set to
-// runtime.NumCPU().
+// goroutines complete the current jobs. Target size must be positive.
 func (p *Pool) Resize(size int) (err error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	if size < 0 {
+	if size < 1 {
 		return fmt.Errorf("bad pool size: %v", size)
 	}
 
-	if size == 0 {
-		size = runtime.NumCPU()
-	}
 	for p.size < size {
 		p.size++
 		p.wg.Add(1)
