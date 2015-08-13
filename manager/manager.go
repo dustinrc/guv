@@ -38,7 +38,7 @@ func (m *Manager) manage(messages chan string, errors chan error) {
 			newSize := m.check()
 			if newSize != size {
 				messages <- fmt.Sprintf("%s: will resize from %d to %d", m.Name, size, newSize)
-				if err := m.resource.Resize(m.check()); err != nil {
+				if err := m.resource.Resize(newSize); err != nil {
 					errors <- fmt.Errorf("%s: could not resize: %v", m.Name, err)
 				}
 			}
