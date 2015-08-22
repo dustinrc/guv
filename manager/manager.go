@@ -22,7 +22,7 @@ type Manager struct {
 
 func New(resource Manageable, check ManagerCheck, freq time.Duration) *Manager {
 	m := &Manager{
-		Name:     fmt.Sprintf("Manager %v", resource),
+		Name:     fmt.Sprintf("Manager[%T %p]", resource, resource),
 		resource: resource,
 		check:    check,
 		freq:     freq,
