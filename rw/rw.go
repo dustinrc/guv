@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"io"
 	"sync"
+	"time"
 )
 
 type Reader struct {
-	r io.Reader
+	r rwThrottleFunc
 
 	mu   sync.Mutex
 	rate int
@@ -15,7 +16,7 @@ type Reader struct {
 
 func NewReader(r io.Reader, rate int) (*Reader, error) {
 	gr := &Reader{
-		r: r,
+		r: throttleWrapper(r.Read),
 	}
 	err := gr.Resize(rate)
 	return gr, err
@@ -40,11 +41,11 @@ func (gr *Reader) Size() int {
 }
 
 func (gr *Reader) Read(p []byte) (n int, err error) {
-	return 0, nil
+	return gr.r(p, gr.Size())
 }
 
 type Writer struct {
-	w io.Writer
+	w rwThrottleFunc
 
 	mu   sync.Mutex
 	rate int
@@ -52,7 +53,7 @@ type Writer struct {
 
 func NewWriter(w io.Writer, rate int) (*Writer, error) {
 	gw := &Writer{
-		w: w,
+		w: throttleWrapper(w.Write),
 	}
 	err := gw.Resize(rate)
 	return gw, err
@@ -77,5 +78,36 @@ func (gw *Writer) Size() int {
 }
 
 func (gw *Writer) Write(p []byte) (n int, err error) {
-	return 0, nil
+	return gw.w(p, gw.rate)
+}
+
+type rwFunc func([]byte) (int, error)
+type rwThrottleFunc func([]byte, int) (int, error)
+
+func throttleWrapper(f rwFunc) rwThrottleFunc {
+	var cooldown time.Duration
+	var currRate float64
+
+	return func(p []byte, rate int) (n int, err error) {
+		start := time.Now()
+		time.Sleep(cooldown)
+		n, err = f(p)
+		elapsed := time.Since(start)
+
+		currRate = float64(n) / float64(elapsed) * float64(time.Second)
+		ratio := currRate / float64(rate)
+		if ratio > 25.0 {
+			ratio = 25.0
+		}
+		if ratio > 1.0 {
+			cooldown += time.Duration(ratio) * time.Millisecond
+		} else {
+			cooldown -= time.Duration((1.0-ratio)*1000) * time.Microsecond
+		}
+		if cooldown < 0 {
+			cooldown = 0
+		}
+
+		return
+	}
 }
