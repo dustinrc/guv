@@ -40,7 +40,7 @@ func TestReaderGoodResize(t *testing.T) {
 		}
 		size := gr.Size()
 		if size != tt.out {
-			t.Errorf("Incorrect reader size: expected %d, actual %d.", tt.out, size)
+			t.Errorf("Incorrect reader size: expected %d, actual %d", tt.out, size)
 		}
 	}
 }
@@ -60,7 +60,7 @@ func TestGoodNewReader(t *testing.T) {
 	gr, err := rw.NewReader(FakeRW{}, 1)
 	size := gr.Size()
 	if size != 1 {
-		t.Errorf("Incorrect initial reader size: expected 1, actual %s", size)
+		t.Errorf("Incorrect initial reader size: expected 1, actual %d", size)
 	}
 	if err != nil {
 		t.Errorf("Unexpected error for good initial reader size: %v", err)
@@ -71,7 +71,7 @@ func TestBadNewReader(t *testing.T) {
 	gr, err := rw.NewReader(FakeRW{}, -1)
 	size := gr.Size()
 	if size != 0 {
-		t.Error("Incorrect initial reader size for bad input: expect 0, actual %d", size)
+		t.Errorf("Incorrect initial reader size for bad input: expect 0, actual %d", size)
 	}
 	if err == nil {
 		t.Error("No error for bad initial reader size")
@@ -96,7 +96,7 @@ func TestWriterGoodResize(t *testing.T) {
 		}
 		size := gw.Size()
 		if size != tt.out {
-			t.Errorf("Incorrect writer size: expected %d, actual %d.", tt.out, size)
+			t.Errorf("Incorrect writer size: expected %d, actual %d", tt.out, size)
 		}
 	}
 }
@@ -116,7 +116,7 @@ func TestGoodNewWriter(t *testing.T) {
 	gw, err := rw.NewWriter(FakeRW{}, 1)
 	size := gw.Size()
 	if size != 1 {
-		t.Errorf("Incorrect initial writer size: expected 1, actual %s", size)
+		t.Errorf("Incorrect initial writer size: expected 1, actual %d", size)
 	}
 	if err != nil {
 		t.Errorf("Unexpected error for good initial writer size: %v", err)
@@ -127,7 +127,7 @@ func TestBadNewWriter(t *testing.T) {
 	gw, err := rw.NewWriter(FakeRW{}, -1)
 	size := gw.Size()
 	if size != 0 {
-		t.Error("Incorrect initial writer size for bad input: expect 0, actual %d", size)
+		t.Errorf("Incorrect initial writer size for bad input: expect 0, actual %d", size)
 	}
 	if err == nil {
 		t.Error("No error for bad initial writer size")

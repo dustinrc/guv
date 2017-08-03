@@ -46,7 +46,7 @@ func TestPoolGoodResize(t *testing.T) {
 	p, _ := pool.New(1)
 	size := p.Size()
 	if size != 1 {
-		t.Errorf("Incorrect pool size: expected %d, actual %d.", 1, size)
+		t.Errorf("Incorrect pool size: expected %d, actual %d", 1, size)
 	}
 
 	for _, tt := range goodSizes {
@@ -56,7 +56,7 @@ func TestPoolGoodResize(t *testing.T) {
 		}
 		size := p.Size()
 		if size != tt.out {
-			t.Errorf("Incorrect pool size: expected %d, actual %d.", tt.out, size)
+			t.Errorf("Incorrect pool size: expected %d, actual %d", tt.out, size)
 		}
 	}
 
@@ -78,7 +78,7 @@ func TestGoodNewPool(t *testing.T) {
 	p, err := pool.New(1)
 	size := p.Size()
 	if size != 1 {
-		t.Errorf("Incorrect initial pool size: expected 1, actual %s", size)
+		t.Errorf("Incorrect initial pool size: expected 1, actual %d", size)
 	}
 	if err != nil {
 		t.Errorf("Unexpected error for good initial pool size: %v", err)
@@ -89,7 +89,7 @@ func TestBadNewPool(t *testing.T) {
 	p, err := pool.New(-1)
 	size := p.Size()
 	if size != 0 {
-		t.Error("Incorrect initial pool size for bad input: expect 0, actual %d", size)
+		t.Errorf("Incorrect initial pool size for bad input: expect 0, actual %d", size)
 	}
 	if err == nil {
 		t.Error("No error for bad initial pool size")
