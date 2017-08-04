@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dustinrc/guv/manager"
 	"github.com/dustinrc/guv/pool"
 )
 
@@ -94,4 +95,8 @@ func TestBadNewPool(t *testing.T) {
 	if err == nil {
 		t.Error("No error for bad initial pool size")
 	}
+}
+
+func TestPoolImplementsManageableInterface(t *testing.T) {
+	var _ manager.Manageable = (*pool.Pool)(nil)
 }
